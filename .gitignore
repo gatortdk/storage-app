@@ -15,3 +15,4 @@ build/
 .vscode/
 
 storage.db
+.DS_Store

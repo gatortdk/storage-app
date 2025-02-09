@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, create_engine, Enum
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -9,14 +9,15 @@ engine = create_engine(DB_URL, echo=True)  # Set echo=True for debugging SQL que
 # Base class for models
 Base = declarative_base()
 
-# Define the Units table
-class Unit(Base):
-    __tablename__ = "units"
+# Define the Storage Units table (ensuring correct table name and schema)
+class StorageUnit(Base):
+    __tablename__ = "storage_units"
     
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    unit_number = Column(String, unique=True, nullable=False)
-    status = Column(Enum("available", "occupied", "reserved", name="unit_status"), default="available", nullable=False)
-    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=True)
+    unit_id = Column(Integer, primary_key=True, autoincrement=True)
+    size = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    occupied = Column(Boolean, nullable=False, default=False)
+    tenant_id = Column(Integer, ForeignKey("tenants.tenant_id"), nullable=True)
 
     tenant = relationship("Tenant", back_populates="units")
 
@@ -24,12 +25,15 @@ class Unit(Base):
 class Tenant(Base):
     __tablename__ = "tenants"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    tenant_id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    phone = Column(String, nullable=True)
+    contact = Column(String, nullable=False)
+    move_in_date = Column(String, nullable=True)
+    lease_end_date = Column(String, nullable=True)
+    payment_status = Column(String, nullable=False)
 
-    units = relationship("Unit", back_populates="tenant")
+    units = relationship("StorageUnit", back_populates="tenant")
 
 # Create a session factory
 SessionLocal = sessionmaker(bind=engine)
+

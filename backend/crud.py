@@ -1,18 +1,18 @@
 from sqlalchemy.orm import Session
-from models import Unit, Tenant
+from backend.models import StorageUnit, Tenant
 
 # CREATE Operations
-def create_unit(db: Session, unit_number: str, status: str = "available"):
+def create_unit(db: Session, size: str, price: float, occupied: bool = False, tenant_id: int = None):
     """Adds a new storage unit."""
-    new_unit = Unit(unit_number=unit_number, status=status)
+    new_unit = StorageUnit(size=size, price=price, occupied=occupied, tenant_id=tenant_id)
     db.add(new_unit)
     db.commit()
     db.refresh(new_unit)
     return new_unit
 
-def create_tenant(db: Session, name: str, email: str, phone: str = None):
+def create_tenant(db: Session, name: str, contact: str, move_in_date: str = None, lease_end_date: str = None, payment_status: str = "Pending"):
     """Adds a new tenant."""
-    new_tenant = Tenant(name=name, email=email, phone=phone)
+    new_tenant = Tenant(name=name, contact=contact, move_in_date=move_in_date, lease_end_date=lease_end_date, payment_status=payment_status)
     db.add(new_tenant)
     db.commit()
     db.refresh(new_tenant)
@@ -21,7 +21,7 @@ def create_tenant(db: Session, name: str, email: str, phone: str = None):
 # READ Operations
 def get_units(db: Session):
     """Retrieves all storage units."""
-    return db.query(Unit).all()
+    return db.query(StorageUnit).all()
 
 def get_tenants(db: Session):
     """Retrieves all tenants."""
@@ -29,18 +29,18 @@ def get_tenants(db: Session):
 
 def get_unit_by_id(db: Session, unit_id: int):
     """Fetch a specific unit by ID."""
-    return db.query(Unit).filter(Unit.id == unit_id).first()
+    return db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id).first()
 
 def get_tenant_by_id(db: Session, tenant_id: int):
     """Fetch a specific tenant by ID."""
-    return db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    return db.query(Tenant).filter(Tenant.tenant_id == tenant_id).first()
 
 # UPDATE Operations
-def update_unit_status(db: Session, unit_id: int, new_status: str):
-    """Updates the status of a storage unit."""
-    unit = db.query(Unit).filter(Unit.id == unit_id).first()
+def update_unit_status(db: Session, unit_id: int, new_status: bool):
+    """Updates the occupancy status of a storage unit."""
+    unit = db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id).first()
     if unit:
-        unit.status = new_status
+        unit.occupied = new_status
         db.commit()
         db.refresh(unit)
     return unit
@@ -48,7 +48,7 @@ def update_unit_status(db: Session, unit_id: int, new_status: str):
 # DELETE Operations
 def delete_unit(db: Session, unit_id: int):
     """Deletes a storage unit."""
-    unit = db.query(Unit).filter(Unit.id == unit_id).first()
+    unit = db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id).first()
     if unit:
         db.delete(unit)
         db.commit()
@@ -56,8 +56,9 @@ def delete_unit(db: Session, unit_id: int):
 
 def delete_tenant(db: Session, tenant_id: int):
     """Deletes a tenant."""
-    tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    tenant = db.query(Tenant).filter(Tenant.tenant_id == tenant_id).first()
     if tenant:
         db.delete(tenant)
         db.commit()
     return tenant
+

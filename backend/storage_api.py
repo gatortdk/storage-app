@@ -8,6 +8,8 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
+# Restrict API to Local Only (Remove CORS)
+# No CORS middleware - API will not accept frontend requests
 # Enable CORS for frontend requests
 app.add_middleware(
     CORSMiddleware,

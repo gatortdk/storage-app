@@ -1,0 +1,16 @@
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore database and environment files
+storage.db
+.env
+
+# Ignore node_modules (React dependencies)
+node_modules/
+build/
+
+# Ignore VS Code settings
+.vscode/
+

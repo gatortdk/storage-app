@@ -1,7 +1,8 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from database import SessionLocal, StorageUnit, Tenant  # Ensure correct import from database.py
+from backend.database import SessionLocal
+from backend.models import Unit, Tenant  # Ensure correct import from models.py
 from pydantic import BaseModel
 
 app = FastAPI()

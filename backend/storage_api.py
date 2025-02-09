@@ -21,6 +21,9 @@ def get_db():
     db = SessionLocal()
     try:
         yield db
+    except Exception as e:
+        db.rollback()  # Rollback any failed transactions
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
     finally:
         db.close()
 
@@ -37,6 +40,7 @@ class StorageUnitUpdate(BaseModel):
     price: float | None = None
     occupied: bool | None = None
     tenant_id: int | None = None
+
 
 # Ensure `POST /units/` endpoint exists
 @app.post("/units/")

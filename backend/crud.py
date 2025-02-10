@@ -20,16 +20,16 @@ def create_tenant(db: Session, name: str, contact: str, move_in_date: str = None
 
 # READ Operations
 def get_units(db: Session):
-    """Retrieves all storage units."""
-    return db.query(StorageUnit).all()
+    """Retrieves all storage units excluding soft-deleted ones."""
+    return db.query(StorageUnit).filter(StorageUnit.is_deleted == False).all()
 
 def get_tenants(db: Session):
     """Retrieves all tenants."""
     return db.query(Tenant).all()
 
 def get_unit_by_id(db: Session, unit_id: int):
-    """Fetch a specific unit by ID."""
-    return db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id).first()
+    """Fetch a specific unit by ID, excluding soft-deleted units."""
+    return db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id, StorageUnit.is_deleted == False).first()
 
 def get_tenant_by_id(db: Session, tenant_id: int):
     """Fetch a specific tenant by ID."""
@@ -38,7 +38,7 @@ def get_tenant_by_id(db: Session, tenant_id: int):
 # UPDATE Operations
 def update_unit_status(db: Session, unit_id: int, new_status: bool):
     """Updates the occupancy status of a storage unit."""
-    unit = db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id).first()
+    unit = db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id, StorageUnit.is_deleted == False).first()
     if unit:
         unit.occupied = new_status
         db.commit()
@@ -47,10 +47,10 @@ def update_unit_status(db: Session, unit_id: int, new_status: bool):
 
 # DELETE Operations
 def delete_unit(db: Session, unit_id: int):
-    """Deletes a storage unit."""
+    """Soft deletes a storage unit."""
     unit = db.query(StorageUnit).filter(StorageUnit.unit_id == unit_id).first()
     if unit:
-        db.delete(unit)
+        unit.is_deleted = True
         db.commit()
     return unit
 
@@ -61,4 +61,3 @@ def delete_tenant(db: Session, tenant_id: int):
         db.delete(tenant)
         db.commit()
     return tenant
-

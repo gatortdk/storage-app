@@ -8,8 +8,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-# Restrict API to Local Only (Remove CORS)
-# No CORS middleware - API will not accept frontend requests
 # Enable CORS for frontend requests
 app.add_middleware(
     CORSMiddleware,
@@ -43,7 +41,12 @@ def create_unit_api(unit: StorageUnitCreate, db: Session = Depends(get_db)):
 
 @app.get("/units/")
 def get_units_api(db: Session = Depends(get_db)):
-    return get_units(db)
+    try:
+        return get_units(db)
+    except Exception as e:
+        print(f"Error fetching units: {e}")
+        raise HTTPException(status_code=500, detail="Error fetching units")
+
 
 @app.get("/units/{unit_id}")
 def get_unit_api(unit_id: int, db: Session = Depends(get_db)):
@@ -57,9 +60,10 @@ def update_unit_status_api(unit_id: int, new_status: bool, db: Session = Depends
     return update_unit_status(db, unit_id, new_status)
 
 @app.delete("/units/{unit_id}")
-def delete_unit_api(unit_id: int, db: Session = Depends(get_db)):
+def soft_delete_unit(unit_id: int, db: Session = Depends(get_db)):
     return delete_unit(db, unit_id)
 
 @app.get("/")
 def read_root():
     return {"message": "API is running with CORS enabled."}
+
